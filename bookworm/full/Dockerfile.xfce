@@ -14,7 +14,7 @@ RUN	apt update && apt full-upgrade -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN apt update && apt install --no-install-recommends task-xfce-desktop xfce4-terminal dbus-x11 -y && \
     apt install xrdp -y && \
-    addgroup xrdp ssl-cert && \
+    usermod -aG ssl-cert xrdp && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN chmod +x /ignition && echo 'no' > /ignited
 CMD ["/bin/bash", "-c", "/ignition"]
