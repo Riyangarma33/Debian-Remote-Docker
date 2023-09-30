@@ -14,7 +14,7 @@ RUN	apt update && apt full-upgrade -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN apt update && apt install --no-install-recommends task-xfce-desktop xfce4-terminal dbus-x11 -y && \
     apt install xrdp -y && \
-    addgroup xrdp ssl-cert && \
+    usermod -aG ssl-cert xrdp && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN apt update && apt install --no-install-recommends wget gnupg apt-transport-https ca-certificates -y && \ 
     wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg && \
