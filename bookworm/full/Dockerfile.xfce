@@ -1,20 +1,24 @@
 FROM debian:bookworm AS ignition
 ENV DEBIAN_FRONTEND	noninteractive
 COPY ./ignition_xrdp.c /ignition_xrdp.c
-RUN apt update && apt install gcc -y && \
+RUN apt-get update && apt-get install gcc -y && \
     gcc /ignition_xrdp.c -static -static-libgcc -Wall -std=c11 -O3 -o /ignition && \
-    apt purge --autoremove gcc -y && \
+    apt-get purge --autoremove gcc -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 FROM debian:bookworm
 ENV DEBIAN_FRONTEND	noninteractive
 COPY --from=ignition /ignition /ignition
-RUN	apt update && apt full-upgrade -y && \
-    apt install --no-install-recommends fish sudo -y && \
+RUN	apt-get update && apt-get full-upgrade -y && \
+    apt-get install --no-install-recommends fish sudo -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN apt update && apt install --no-install-recommends task-xfce-desktop xfce4-terminal dbus-x11 -y && \
-    apt install xrdp -y && \
+RUN apt-get update && apt-get install --no-install-recommends task-xfce-desktop xfce4-terminal dbus-x11 -y && \
+    apt-get install xrdp -y && \
     usermod -aG ssl-cert xrdp && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/* && \
+    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+ENV LANG en_US.utf8
+RUN locale-gen
 RUN chmod +x /ignition && echo 'no' > /ignited
 CMD ["/bin/bash", "-c", "/ignition"]
