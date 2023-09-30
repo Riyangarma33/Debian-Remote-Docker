@@ -1,0 +1,27 @@
+FROM debian:bullseye-slim AS ignition
+ENV DEBIAN_FRONTEND	noninteractive
+COPY ./ignition_xrdp.c /ignition_xrdp.c
+RUN apt update && apt install gcc -y && \
+    gcc /ignition_xrdp.c -static -static-libgcc -Wall -std=c11 -O3 -o /ignition && \
+    apt purge --autoremove gcc -y && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+FROM debian:bullseye-slim
+ENV DEBIAN_FRONTEND=noninteractive
+COPY --from=ignition /ignition /ignition
+RUN	apt update && apt full-upgrade -y && \
+    apt install --no-install-recommends fish sudo -y && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt update && apt install --no-install-recommends task-xfce-desktop xfce4-terminal dbus-x11 -y && \
+    apt install xrdp -y && \
+    addgroup xrdp ssl-cert && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt update && apt install --no-install-recommends wget gnupg apt-transport-https ca-certificates -y && \ 
+    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg && \
+    install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/ && \
+    echo 'deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main' > /etc/apt/sources.list.d/vscode.list && \
+    rm -f packages.microsoft.gpg && \
+    apt update && apt install code libasound2-dev -y && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN chmod +x /ignition && echo 'no' > /ignited
+CMD ["/bin/bash", "-c", "/ignition"]
