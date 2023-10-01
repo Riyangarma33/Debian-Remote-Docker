@@ -12,7 +12,8 @@ COPY --from=ignition /ignition /ignition
 RUN	apt-get update && apt-get full-upgrade -y && \
     apt-get install --no-install-recommends fish sudo -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN apt-get update && apt-get install --no-install-recommends task-mate-desktop dbus-x11 -y && \
+RUN apt-get update && apt-get install --no-install-recommends task-mate-desktop \
+    mate-tweak dbus-x11 -y && \
     apt-get install xrdp -y && \
     usermod -aG ssl-cert xrdp && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
