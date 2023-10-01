@@ -15,8 +15,11 @@ env:
   DEBIAN_CODE: "bookworm"
 
 jobs:
-  Push-Bookworm-XFCE:
+  Push-Bookworm:
     # runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        DE: [xfce, mate]
     runs-on: buildjet-4vcpu-ubuntu-2204
     steps:
       - name: Checkout
@@ -32,12 +35,23 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v5
+        if: ${{ matrix.DE == 'xfce'}}
         with:
           context: "${{ env.DEBIAN_CODE }}/full"
-          file: "${{ env.DEBIAN_CODE }}/full/Dockerfile.xfce"
+          file: "${{ env.DEBIAN_CODE }}/full/Dockerfile.${{ matrix.DE }}"
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:latest"
             "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ env.DEBIAN_CODE }}"
-            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ env.DEBIAN_CODE }}-xfce"
+            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ env.DEBIAN_CODE }}-${{ matrix.DE }}"
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        if: ${{ matrix.DE != 'xfce'}}
+        with:
+          context: "${{ env.DEBIAN_CODE }}/full"
+          file: "${{ env.DEBIAN_CODE }}/full/Dockerfile.${{ matrix.DE }}"
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ env.DEBIAN_CODE }}-${{ matrix.DE }}"
