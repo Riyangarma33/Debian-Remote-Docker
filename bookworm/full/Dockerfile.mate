@@ -1,10 +1,6 @@
-FROM debian:bookworm AS ignition
-ENV DEBIAN_FRONTEND	noninteractive
+FROM gcc:bookworm AS ignition
 COPY ./ignition_xrdp.c /ignition_xrdp.c
-RUN apt-get update && apt-get install gcc -y && \
-    gcc /ignition_xrdp.c -static -static-libgcc -Wall -std=c11 -O3 -o /ignition && \
-    apt-get purge --autoremove gcc -y && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN gcc /ignition_xrdp.c -static -static-libgcc -Wall -std=c11 -O3 -o /ignition
 
 FROM debian:bookworm
 ENV DEBIAN_FRONTEND	noninteractive

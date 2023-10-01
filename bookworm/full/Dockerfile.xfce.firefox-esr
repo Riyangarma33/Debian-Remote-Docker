@@ -1,12 +1,8 @@
-FROM debian:bullseye-slim AS ignition
-ENV DEBIAN_FRONTEND	noninteractive
+FROM gcc:bookworm AS ignition
 COPY ./ignition_xrdp.c /ignition_xrdp.c
-RUN apt update && apt install gcc -y && \
-    gcc /ignition_xrdp.c -static -static-libgcc -Wall -std=c11 -O3 -o /ignition && \
-    apt purge --autoremove gcc -y && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN gcc /ignition_xrdp.c -static -static-libgcc -Wall -std=c11 -O3 -o /ignition
 
-FROM debian:bullseye-slim
+FROM debian:bookworm
 ENV DEBIAN_FRONTEND	noninteractive
 COPY --from=ignition /ignition /ignition
 RUN	apt update && apt full-upgrade -y && \
