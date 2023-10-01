@@ -1,0 +1,23 @@
+FROM gcc:bookworm AS ignition
+COPY ./ignition_xrdp.c /ignition_xrdp.c
+RUN gcc /ignition_xrdp.c -static -static-libgcc -Wall -std=c11 -O3 -o /ignition
+
+FROM debian:bookworm-slim
+ENV DEBIAN_FRONTEND	noninteractive
+COPY --from=ignition /ignition /ignition
+RUN	apt-get update && apt-get full-upgrade -y && \
+    apt-get install --no-install-recommends fish sudo -y && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get update && apt-get install --no-install-recommends task-mate-desktop \
+    mate-tweak dbus-x11 -y && \
+    apt-get install xrdp -y && \
+    usermod -aG ssl-cert xrdp && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get update && apt-get install -y locales && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN echo "LC_ALL=en_US.UTF-8" | tee -a /etc/environment
+RUN echo "en_US.UTF-8 UTF-8" | tee -a /etc/locale.gen
+RUN echo "LANG=en_US.UTF-8" | tee -a /etc/locale.conf
+RUN locale-gen en_US.UTF-8
+RUN chmod +x /ignition && echo 'no' > /ignited
+CMD ["/bin/bash", "-c", "/ignition"]
