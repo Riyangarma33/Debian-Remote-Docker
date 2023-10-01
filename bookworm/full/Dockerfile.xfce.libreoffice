@@ -5,7 +5,7 @@ RUN gcc /ignition_xrdp.c -static -static-libgcc -Wall -std=c11 -O3 -o /ignition
 FROM debian:bookworm
 ENV DEBIAN_FRONTEND	noninteractive
 COPY --from=ignition /ignition /ignition
-RUN	sed -e 's/$/ contrib non-free/' -i /etc/apt/sources.list && \
+RUN	sed -i '/Suites: bookworm bookworm-updates/{n;s/Components: main/Components: main contrib non-free non-free-firmware/}' /etc/apt/sources.list.d/debian.sources && \
     apt-get update && apt-get full-upgrade -y && \
     apt-get install --no-install-recommends fish sudo -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
