@@ -1,14 +1,14 @@
-name: Publish Debian Bookworm
+name: Publish Debian Bookworm with Additions
 
 on:
   push:
     branches:
       - "main"
     paths:
-      - .github/workflows/publish-bookworm-full.yml
+      - .github/workflows/publish-bookworm-full-additions.yml
       - bookworm/full/**
-      - "!bookworm/full/Dockerfile.mate.**"
-      - "!bookworm/full/Dockerfile.xfce.**"
+      - "!bookworm/full/Dockerfile.mate"
+      - "!bookworm/full/Dockerfile.xfce"
   schedule:
     - cron: "0 1 */14 * *"
 
@@ -17,12 +17,12 @@ env:
   DEBIAN_CODE: "bookworm"
 
 jobs:
-  Push-Bookworm:
-    # runs-on: ubuntu-latest
+  Push-Bookworm-Additions:
     strategy:
       matrix:
         DE: [xfce, mate]
-    runs-on: buildjet-4vcpu-ubuntu-2204
+        APP: [firefox-esr, libreoffice, vscode]
+    runs-on: buildjet-8vcpu-ubuntu-2204
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,22 +40,21 @@ jobs:
         if: ${{ matrix.DE == 'xfce'}}
         with:
           context: "${{ env.DEBIAN_CODE }}/full"
-          file: "${{ env.DEBIAN_CODE }}/full/Dockerfile.${{ matrix.DE }}"
+          file: "${{ env.DEBIAN_CODE }}/full/Dockerfile.${{ matrix.DE }}.${{ matrix.APP }}"
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:latest"
-            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ matrix.DE }}"
-            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ env.DEBIAN_CODE }}"
-            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ env.DEBIAN_CODE }}-${{ matrix.DE }}"
+            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ matrix.DE }}-${{ matrix.APP }}"
+            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ env.DEBIAN_CODE }}-${{ matrix.APP }}"
+            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ env.DEBIAN_CODE }}-${{ matrix.DE }}-${{ matrix.APP }}"
       - name: Build and Push Other DE
         uses: docker/build-push-action@v5
         if: ${{ matrix.DE != 'xfce'}}
         with:
           context: "${{ env.DEBIAN_CODE }}/full"
-          file: "${{ env.DEBIAN_CODE }}/full/Dockerfile.${{ matrix.DE }}"
+          file: "${{ env.DEBIAN_CODE }}/full/Dockerfile.${{ matrix.DE }}.${{ matrix.APP }}"
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ matrix.DE }}"
-            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ env.DEBIAN_CODE }}-${{ matrix.DE }}"
+            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ matrix.DE }}-${{ matrix.APP }}"
+            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ env.DEBIAN_CODE }}-${{ matrix.DE }}-${{ matrix.APP }}"
