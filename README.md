@@ -24,6 +24,10 @@ The images is released in Docker Hub [riyangarma33/debian-remote](https://hub.do
 
 Default tag that been published. Builded from debian:bookworm.
 
+### `<DESKTOP ENVIRONMENT>`
+
+Debian Bookworm with user choice of desktop environment.
+
 ### `<DEBIAN VERSION>`
 
 User choice of debian version.
