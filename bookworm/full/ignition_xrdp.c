@@ -100,6 +100,8 @@ int main()
             printf("Set guest session directory to read only\n");
             if (mkdir("/home/guest/.cache") != 0 || mkdir("/home/guest/.cache/sessions") != 0)
                 printf("session directory already exist!\n");
+            else
+                system("chown guest:guest -R /home/guest/.cache");
             system("chmod -w /home/guest/.cache/sessions");
             // system("mkdir /home/guest");
             // system("mkdir /home/guest/programs");
