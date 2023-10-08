@@ -39,7 +39,7 @@ jobs:
         uses: docker/build-push-action@v5
         if: ${{ matrix.DE == 'xfce'}}
         with:
-          context: "${{ env.DEBIAN_CODE }}/slim"
+          context: "${{ env.DEBIAN_CODE }}"
           file: "${{ env.DEBIAN_CODE }}/slim/Dockerfile.${{ matrix.DE }}.${{ matrix.APP }}"
           platforms: linux/amd64,linux/arm64
           push: true
@@ -51,7 +51,7 @@ jobs:
         uses: docker/build-push-action@v5
         if: ${{ matrix.DE != 'xfce'}}
         with:
-          context: "${{ env.DEBIAN_CODE }}/slim"
+          context: "${{ env.DEBIAN_CODE }}"
           file: "${{ env.DEBIAN_CODE }}/slim/Dockerfile.${{ matrix.DE }}.${{ matrix.APP }}"
           platforms: linux/amd64,linux/arm64
           push: true
