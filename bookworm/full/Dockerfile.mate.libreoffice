@@ -20,8 +20,15 @@ RUN apt-get update && apt-get install -y locales && \
     echo "LANG=en_US.UTF-8" | tee -a /etc/locale.conf && \
     locale-gen en_US.UTF-8 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get update && apt-get install --no-install-recommends curl \
+    gpg apt-transport-https ca-certificates -y && \
+    curl -fSsL https://deb.volian.org/volian/scar.key | gpg --dearmor | tee /usr/share/keyrings/volian.gpg > /dev/null && \
+    echo "deb [signed-by=/usr/share/keyrings/volian.gpg] https://deb.volian.org/volian/ scar main" | tee /etc/apt/sources.list.d/volian-archive-scar-unstable.list && \
+    apt-get update && apt-get install nala -y && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN apt-get update && apt-get install --no-install-recommends libreoffice libreoffice-gtk3 ttf-mscorefonts-installer -y && \
     fc-cache -f -v && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN rm /etc/apt/apt.conf.d/docker-clean
 RUN chmod +x /ignition && echo 'no' > /ignited
 CMD ["/bin/bash", "-c", "/ignition"]
