@@ -25,5 +25,6 @@ RUN apt-get update && apt-get install --no-install-recommends curl \
     echo "deb [signed-by=/usr/share/keyrings/volian.gpg] https://deb.volian.org/volian/ scar main" | tee /etc/apt/sources.list.d/volian-archive-scar-unstable.list && \
     apt-get update && apt-get install nala -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN rm /etc/apt/apt.conf.d/docker-clean
 RUN chmod +x /ignition && echo 'no' > /ignited
 CMD ["/bin/bash", "-c", "/ignition"]
