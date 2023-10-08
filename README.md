@@ -24,10 +24,6 @@ The images is released in Docker Hub [riyangarma33/debian-remote](https://hub.do
 
 Default tag that been published. Builded from debian:bookworm.
 
-### `<ADDITIONAL APPS>`
-
-Debian Bookworm with user choice of additional apps.
-
 ### `<DEBIAN VERSION>`
 
 User choice of debian version.
@@ -51,10 +47,6 @@ Slim variant of image. Builded from debian:bookworm-slim.
 ### slim-`<DESKTOP ENVIRONMENT>`
 
 Slim variant of Debian Bookworm with user choice of desktop environment.
-
-### slim-`<ADDITIONAL APPS>`
-
-Slim variant of Debian Bookworm with user choice of additional apps.
 
 ### slim-`<DESKTOP ENVIRONMENT>`-`<ADDITIONAL APPS>`
 
