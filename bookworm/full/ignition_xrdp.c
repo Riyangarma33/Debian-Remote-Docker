@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 const bool chk_ignite()
 {
@@ -96,6 +97,9 @@ int main()
             system("cp /bin/bash /bin/rbash");
             system("useradd -m -s /bin/rbash guest");
             system("echo guest:guest | chpasswd");
+            printf("Set guest session directory to read only\n");
+            if (mkdir("/home/guest/.cache") != 0 || mkdir("/home/guest/.cache/sessions") != 0)
+                printf("session directory already exist!\n");
             system("chmod -w /home/guest/.cache/sessions");
             // system("mkdir /home/guest");
             // system("mkdir /home/guest/programs");
