@@ -14,6 +14,17 @@ RUN apt-get update && apt-get install --no-install-recommends task-xfce-desktop 
     apt-get install xrdp -y && \
     usermod -aG ssl-cert xrdp && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN cd /lib/systemd/system/sysinit.target.wants/ \
+    && ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1
+RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
+    /etc/systemd/system/*.wants/* \
+    /lib/systemd/system/local-fs.target.wants/* \
+    /lib/systemd/system/sockets.target.wants/*udev* \
+    /lib/systemd/system/sockets.target.wants/*initctl* \
+    /lib/systemd/system/basic.target.wants/* \
+    /lib/systemd/system/anaconda.target.wants/* \
+    /lib/systemd/system/plymouth* \
+    /lib/systemd/system/systemd-update-utmp*
 RUN apt-get update && apt-get install -y locales && \
     echo "LC_ALL=en_US.UTF-8" | tee -a /etc/environment && \
     echo "en_US.UTF-8 UTF-8" | tee -a /etc/locale.gen && \
@@ -27,18 +38,7 @@ RUN apt-get update && apt-get install --no-install-recommends curl \
     apt-get update && apt-get install nala -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN rm /etc/apt/apt.conf.d/docker-clean
-RUN cd /lib/systemd/system/sysinit.target.wants/ \
-    && ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1
-RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
-    /etc/systemd/system/*.wants/* \
-    /lib/systemd/system/local-fs.target.wants/* \
-    /lib/systemd/system/sockets.target.wants/*udev* \
-    /lib/systemd/system/sockets.target.wants/*initctl* \
-    /lib/systemd/system/basic.target.wants/* \
-    /lib/systemd/system/anaconda.target.wants/* \
-    /lib/systemd/system/plymouth* \
-    /lib/systemd/system/systemd-update-utmp*
-RUN systemctl set-default multi-user.target && systemctl enable xrdp && systemctl enable udev && \
-    systemctl enable ignition
+RUN systemctl set-default multi-user.target && \
+    systemctl enable xrdp && systemctl enable ignition
 RUN chmod +x /ignition && echo 'no' > /ignited
 CMD ["/lib/systemd/systemd"]
