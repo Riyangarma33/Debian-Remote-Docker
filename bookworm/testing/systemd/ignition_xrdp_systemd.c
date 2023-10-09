@@ -177,7 +177,7 @@ int main()
         // system("service xrdp stop");
         system("systemctl enable xrdp");
     }
-    system("/lib/systemd/systemd");
+    // system("/lib/systemd/systemd");
     // system("service xrdp start");
     // system("/bin/bash");
     return 0;
