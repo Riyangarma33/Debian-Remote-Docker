@@ -175,7 +175,7 @@ int main()
     {
         printf("Container Has Been Configured\n");
         // system("service xrdp stop");
-        system("systemctl enable xrdp");
+        // system("systemctl enable xrdp");
     }
     // system("/lib/systemd/systemd");
     // system("service xrdp start");

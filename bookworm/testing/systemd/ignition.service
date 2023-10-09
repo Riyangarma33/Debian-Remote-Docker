@@ -1,0 +1,11 @@
+[Unit]
+Description=Ignition Script
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+PassEnvironment=TZ DIS_ROOT NEW_USER NEW_USER_PASSWD NEW_USER_SUDO ROOT_PASSWD GUEST_ACC
+ExecStart=/ignition
+
+[Install]
+WantedBy=multi-user.target

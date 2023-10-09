@@ -5,6 +5,7 @@ RUN gcc /ignition_xrdp.c -static -static-libgcc -Wall -std=c11 -O3 -o /ignition
 FROM debian:bookworm
 ENV DEBIAN_FRONTEND	noninteractive
 COPY --from=ignition /ignition /ignition
+COPY ./ignition.service /etc/systemd/system/
 RUN	apt-get update && apt-get full-upgrade -y && \
     apt-get install --no-install-recommends fish sudo -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -37,6 +38,7 @@ RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
     /lib/systemd/system/anaconda.target.wants/* \
     /lib/systemd/system/plymouth* \
     /lib/systemd/system/systemd-update-utmp*
-RUN systemctl set-default multi-user.target
+RUN systemctl set-default multi-user.target && systemctl enable xrdp && systemctl enable udev && \
+    systemctl enable ignition
 RUN chmod +x /ignition && echo 'no' > /ignited
-CMD ["/bin/bash", "-c", "/ignition", "&&", "/lib/systemd/systemd"]
+CMD ["/lib/systemd/systemd"]
