@@ -14,7 +14,7 @@ RUN apt-get update && apt-get full-upgrade -y && apt-get install -y locales && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN	apt-get update && \
     apt-get install --no-install-recommends fish sudo -y && \
-    apt-get install systemd-sysv && \
+    apt-get install systemd-sysv -y && \
     cd /lib/systemd/system/sysinit.target.wants/ && \
     ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1 && \
     rm -f /lib/systemd/system/multi-user.target.wants/* \
