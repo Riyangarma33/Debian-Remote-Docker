@@ -6,17 +6,18 @@ FROM debian:bookworm
 ENV DEBIAN_FRONTEND	noninteractive
 COPY --from=ignition /ignition /ignition
 COPY ./ignition.service /etc/systemd/system/
-RUN	apt-get update && apt-get full-upgrade -y && \
+RUN apt-get update && apt-get full upgrade -y && apt-get install -y locales && \
+    echo "LC_ALL=en_US.UTF-8" | tee -a /etc/environment && \
+    echo "en_US.UTF-8 UTF-8" | tee -a /etc/locale.gen && \
+    echo "LANG=en_US.UTF-8" | tee -a /etc/locale.conf && \
+    locale-gen en_US.UTF-8 && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN	apt-get update && \
     apt-get install --no-install-recommends fish sudo -y && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN apt-get update && apt-get install --no-install-recommends task-xfce-desktop \
-    mate-themes xfce4-datetime-plugin xfce4-terminal dbus-x11 -y && \
-    apt-get install xrdp -y && \
-    usermod -aG ssl-cert xrdp && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN cd /lib/systemd/system/sysinit.target.wants/ \
-    && ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1
-RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
+    apt-get install systemd-sysv && \
+    cd /lib/systemd/system/sysinit.target.wants/ && \
+    ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1 && \
+    rm -f /lib/systemd/system/multi-user.target.wants/* \
     /etc/systemd/system/*.wants/* \
     /lib/systemd/system/local-fs.target.wants/* \
     /lib/systemd/system/sockets.target.wants/*udev* \
@@ -24,12 +25,12 @@ RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
     /lib/systemd/system/basic.target.wants/* \
     /lib/systemd/system/anaconda.target.wants/* \
     /lib/systemd/system/plymouth* \
-    /lib/systemd/system/systemd-update-utmp*
-RUN apt-get update && apt-get install -y locales && \
-    echo "LC_ALL=en_US.UTF-8" | tee -a /etc/environment && \
-    echo "en_US.UTF-8 UTF-8" | tee -a /etc/locale.gen && \
-    echo "LANG=en_US.UTF-8" | tee -a /etc/locale.conf && \
-    locale-gen en_US.UTF-8 && \
+    /lib/systemd/system/systemd-update-utmp* && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get update && apt-get install --no-install-recommends task-xfce-desktop \
+    mate-themes xfce4-datetime-plugin xfce4-terminal dbus-x11 -y && \
+    apt-get install xrdp -y && \
+    usermod -aG ssl-cert xrdp && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN apt-get update && apt-get install --no-install-recommends curl \
     gpg apt-transport-https ca-certificates -y && \
@@ -42,3 +43,15 @@ RUN systemctl set-default multi-user.target && \
     systemctl enable xrdp && systemctl enable ignition
 RUN chmod +x /ignition && echo 'no' > /ignited
 CMD ["/lib/systemd/systemd"]
+
+# RUN cd /lib/systemd/system/sysinit.target.wants/ \
+#     && ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1
+# RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
+#     /etc/systemd/system/*.wants/* \
+#     /lib/systemd/system/local-fs.target.wants/* \
+#     /lib/systemd/system/sockets.target.wants/*udev* \
+#     /lib/systemd/system/sockets.target.wants/*initctl* \
+#     /lib/systemd/system/basic.target.wants/* \
+#     /lib/systemd/system/anaconda.target.wants/* \
+#     /lib/systemd/system/plymouth* \
+#     /lib/systemd/system/systemd-update-utmp*
