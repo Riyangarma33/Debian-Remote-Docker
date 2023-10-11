@@ -5,19 +5,19 @@ RUN gcc /ignition_xrdp.c -static -static-libgcc -Wall -std=c11 -O3 -o /ignition
 FROM debian:bookworm
 ENV DEBIAN_FRONTEND	noninteractive
 COPY --from=ignition /ignition /ignition
-RUN	apt-get update && apt-get full-upgrade -y && \
+RUN apt-get update && apt-get full-upgrade -y && apt-get install -y locales apt-utils && \
+    echo "LC_ALL=en_US.UTF-8" | tee -a /etc/environment && \
+    echo "en_US.UTF-8 UTF-8" | tee -a /etc/locale.gen && \
+    echo "LANG=en_US.UTF-8" | tee -a /etc/locale.conf && \
+    locale-gen en_US.UTF-8 && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN	apt-get update && \
     apt-get install --no-install-recommends fish sudo -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN apt-get update && apt-get install --no-install-recommends task-xfce-desktop \
     mate-themes xfce4-datetime-plugin xfce4-terminal dbus-x11 -y && \
     apt-get install xrdp -y && \
     usermod -aG ssl-cert xrdp && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN apt-get update && apt-get install -y locales && \
-    echo "LC_ALL=en_US.UTF-8" | tee -a /etc/environment && \
-    echo "en_US.UTF-8 UTF-8" | tee -a /etc/locale.gen && \
-    echo "LANG=en_US.UTF-8" | tee -a /etc/locale.conf && \
-    locale-gen en_US.UTF-8 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN apt-get update && apt-get install --no-install-recommends curl \
     gpg apt-transport-https ca-certificates -y && \
