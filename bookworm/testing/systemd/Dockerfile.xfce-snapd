@@ -1,0 +1,60 @@
+FROM gcc:bookworm AS ignition
+COPY ./ignition_xrdp_systemd.c /ignition_xrdp.c
+RUN gcc /ignition_xrdp.c -static -static-libgcc -Wall -std=c11 -O3 -o /ignition
+
+FROM debian:bookworm
+ENV DEBIAN_FRONTEND	noninteractive
+COPY --from=ignition /ignition /ignition
+COPY ./ignition.service /etc/systemd/system/
+RUN apt-get update && apt-get full-upgrade -y && apt-get install -y locales apt-utils && \
+    echo "LC_ALL=en_US.UTF-8" | tee -a /etc/environment && \
+    echo "en_US.UTF-8 UTF-8" | tee -a /etc/locale.gen && \
+    echo "LANG=en_US.UTF-8" | tee -a /etc/locale.conf && \
+    locale-gen en_US.UTF-8 && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN	apt-get update && \
+    apt-get install --no-install-recommends fish sudo -y && \
+    apt-get install systemd-sysv -y && \
+    cd /lib/systemd/system/sysinit.target.wants/ && \
+    ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1 && \
+    rm -f /lib/systemd/system/multi-user.target.wants/* \
+    /etc/systemd/system/*.wants/* \
+    /lib/systemd/system/local-fs.target.wants/* \
+    /lib/systemd/system/sockets.target.wants/*udev* \
+    /lib/systemd/system/sockets.target.wants/*initctl* \
+    /lib/systemd/system/basic.target.wants/* \
+    /lib/systemd/system/anaconda.target.wants/* \
+    /lib/systemd/system/plymouth* \
+    /lib/systemd/system/systemd-update-utmp* && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get update && apt-get install --no-install-recommends task-xfce-desktop \
+    mate-themes xfce4-datetime-plugin xfce4-terminal dbus-x11 -y && \
+    apt-get install xrdp -y && \
+    usermod -aG ssl-cert xrdp && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get update && apt-get install -y snapd squashfuse && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get update && apt-get install --no-install-recommends curl \
+    gpg apt-transport-https ca-certificates -y && \
+    curl -fSsL https://deb.volian.org/volian/scar.key | gpg --dearmor | tee /usr/share/keyrings/volian.gpg > /dev/null && \
+    echo "deb [signed-by=/usr/share/keyrings/volian.gpg] https://deb.volian.org/volian/ scar main" | tee /etc/apt/sources.list.d/volian-archive-scar-unstable.list && \
+    apt-get update && apt-get install nala -y && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN rm /etc/apt/apt.conf.d/docker-clean
+RUN systemctl set-default multi-user.target && \
+    systemctl enable xrdp && systemctl enable ignition && systemctl enable snapd
+RUN chmod +x /ignition && echo 'no' > /ignited
+STOPSIGNAL SIGRTMIN+3
+CMD ["/sbin/init"]
+
+# RUN cd /lib/systemd/system/sysinit.target.wants/ \
+#     && ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1
+# RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
+#     /etc/systemd/system/*.wants/* \
+#     /lib/systemd/system/local-fs.target.wants/* \
+#     /lib/systemd/system/sockets.target.wants/*udev* \
+#     /lib/systemd/system/sockets.target.wants/*initctl* \
+#     /lib/systemd/system/basic.target.wants/* \
+#     /lib/systemd/system/anaconda.target.wants/* \
+#     /lib/systemd/system/plymouth* \
+#     /lib/systemd/system/systemd-update-utmp*
