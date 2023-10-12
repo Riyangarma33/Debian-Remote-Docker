@@ -180,6 +180,7 @@ int main()
         system("service xrdp stop");
     }
     system("service xrdp start");
-    system("/bin/bash");
+    // system("/bin/bash");
+    system("tail -f /var/log/xrdp.log -f /var/log/xrdp-sesman.log");
     return 0;
 }
